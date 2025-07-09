@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+  <h2 class="mb-3">Modifier une transaction</h2>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <form method="post" class="row g-3">
+    <div class="col-md-4">
+      <select name="client_id" class="form-select" required>
+        {% for client in clients %}
+          <option value="{{ client.id }}" {% if client.id == transaction.client_id %}selected{% endif %}>{{ client.nom }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-4">
+      <select name="produit_id" class="form-select" required>
+        {% for produit in produits %}
+          <option value="{{ produit.id }}" {% if produit.id == transaction.produit_id %}selected{% endif %}>{{ produit.nom }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-4">
+      <input type="date" name="date" class="form-control" value="{{ transaction.date }}" required>
+    </div>
+    <div class="col-md-4">
+      <input type="number" name="quantite" class="form-control" value="{{ transaction.quantite }}" min="1" required>
+    </div>
+    <div class="col-md-4">
+      <input type="number" name="note" class="form-control" value="{{ transaction.note }}" min="1" max="5" required>
+    </div>
+    <div class="col-md-12">
+      <button class="btn btn-warning">✅ Enregistrer</button>
+      <a href="{{ url_for('transactions') }}" class="btn btn-secondary">Annuler</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

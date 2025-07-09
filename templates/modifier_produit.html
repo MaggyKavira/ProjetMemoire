@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+  <h2 class="mb-4">Modifier le Produit</h2>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="mb-3">
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  <form method="post" enctype="multipart/form-data">
+    <div class="row g-3">
+      <div class="col-md-3">
+        <input type="text" name="nom" class="form-control" value="{{ produit.nom }}" required>
+      </div>
+      <div class="col-md-3">
+        <input type="text" name="categorie" class="form-control" value="{{ produit.categorie }}" required>
+      </div>
+      <div class="col-md-2">
+        <input type="number" name="prix" class="form-control" step="0.01" value="{{ produit.prix }}" required>
+      </div>
+      <div class="col-md-2">
+        <input type="number" name="stock" class="form-control" value="{{ produit.stock }}" required>
+      </div>
+      <div class="col-md-2">
+        <input type="file" name="image" class="form-control" accept="image/*">
+      </div>
+    </div>
+    <button class="btn btn-warning mt-3">Enregistrer les modifications</button>
+    <a href="{{ url_for('produits') }}" class="btn btn-secondary mt-3">Annuler</a>
+  </form>
+</div>
+{% endblock %}

@@ -2,7 +2,43 @@
 {% block content %}
 <div class="container mt-4">
     <h2 class="mb-4">Gestion des Produits</h2>
-    <form action="{{ url_for('ajouter_produit') }}" method="post" enctype="multipart/form-data" class="mb-4">
+
+    <!-- 🔔 Flash messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="mb-3">
+          {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer"></button>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <!-- 🔍 Filtres et recherche -->
+    <form method="get" class="mb-4 d-flex gap-3 flex-wrap">
+        <select name="categorie" class="form-select w-auto">
+            <option value="">Toutes les catégories</option>
+            {% for cat in categories %}
+                <option value="{{ cat }}" {% if cat == categorie %}selected{% endif %}>{{ cat }}</option>
+            {% endfor %}
+        </select>
+
+        <input type="text" name="recherche" value="{{ recherche }}" class="form-control w-auto" placeholder="Rechercher un produit...">
+
+        <select name="tri" class="form-select w-auto">
+            <option value="">Tri par défaut</option>
+            <option value="prix_asc" {% if tri == 'prix_asc' %}selected{% endif %}>Prix croissant</option>
+            <option value="prix_desc" {% if tri == 'prix_desc' %}selected{% endif %}>Prix décroissant</option>
+        </select>
+
+        <button class="btn btn-primary">Appliquer</button>
+    </form>
+
+    <!-- ➕ Ajout de produit -->
+    <form action="{{ url_for('ajouter_produit') }}" method="post" enctype="multipart/form-data" class="mb-5">
         <div class="row g-2">
             <div class="col-md-3">
                 <input type="text" name="nom" class="form-control" placeholder="Nom" required>
@@ -11,7 +47,7 @@
                 <input type="text" name="categorie" class="form-control" placeholder="Catégorie" required>
             </div>
             <div class="col-md-2">
-                <input type="number" name="prix" class="form-control" placeholder="Prix" step="0.01" required>
+                <input type="number" name="prix" class="form-control" placeholder="Prix (€)" step="0.01" required>
             </div>
             <div class="col-md-2">
                 <input type="number" name="stock" class="form-control" placeholder="Stock" required>
@@ -20,38 +56,94 @@
                 <input type="file" name="image" class="form-control" accept="image/*" required>
             </div>
         </div>
-        <button type="submit" class="btn btn-primary mt-2">Ajouter</button>
+        <button type="submit" class="btn btn-success mt-3">Ajouter</button>
     </form>
-    
+
+    <!-- 🖼️ Produits affichés -->
     <div class="row">
-        {% for produit in produits[:6] %}
+        {% for produit in produits %}
         <div class="col-md-4 mb-4">
-            <div class="card">
-                <img src="{{ url_for('static', filename='images/' + produit.image) }}" class="card-img-top" alt="{{ produit.nom }}">
+            <div class="card h-100 border-0 shadow-sm product-card">
+                <div class="position-relative">
+                    <img src="{{ url_for('static', filename='images/' + produit.image) }}"
+                         alt="{{ produit.nom }}"
+                         class="card-img-top rounded-top img-fluid"
+                         style="object-fit: cover; height: 230px;">
+                    {% if produit.stock <= 5 %}
+                    <span class="badge bg-danger position-absolute top-0 end-0 m-2">⚠ Stock faible</span>
+                    {% endif %}
+                </div>
+
                 <div class="card-body">
-                    <h5 class="card-title">{{ produit.nom }}</h5>
-                    <p class="card-text">Catégorie: {{ produit.categorie }}</p>
-                    <p class="card-text">Prix: {{ produit.prix }}€</p>
+                    <h5 class="card-title text-primary fw-bold">{{ produit.nom }}</h5>
+                    <p class="card-text mb-1">🗂️ <strong>Catégorie :</strong> {{ produit.categorie }}</p>
+                    <p class="card-text mb-1">💰 <strong>Prix :</strong> {{ produit.prix }} €</p>
+                    <p class="card-text">📦 <strong>Stock :</strong>
+                        <span class="badge {% if produit.stock <= 5 %}bg-warning text-dark{% else %}bg-success{% endif %}">
+                            {{ produit.stock }} unités
+                        </span>
+                    </p>
+                </div>
+
+                <div class="card-footer bg-transparent border-0">
+                    <div class="d-flex flex-column gap-2">
+                        <a href="{{ url_for('modifier_produit', produit_id=produit.id) }}" class="btn btn-sm btn-outline-primary w-100">✏️ Modifier</a>
+
+                        <form action="{{ url_for('supprimer_produit', produit_id=produit.id) }}" method="post" onsubmit="return confirm('Confirmer la suppression du produit ?');">
+                            <button class="btn btn-sm btn-outline-danger w-100">🗑️ Supprimer</button>
+                        </form>
+
+                        <form action="{{ url_for('ajouter_stock', produit_id=produit.id) }}" method="post" class="d-flex gap-2">
+                            <input type="number" name="quantite" min="1" class="form-control form-control-sm" placeholder="+ Stock">
+                            <button class="btn btn-sm btn-outline-success">✔️</button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
         {% endfor %}
     </div>
-    
+
+    <!-- 🔁 Pagination -->
     <nav aria-label="Pagination">
         <ul class="pagination justify-content-center mt-4">
             {% if page > 1 %}
-            <li class="page-item"><a class="page-link" href="{{ url_for('produits', page=page-1) }}">Précédent</a></li>
+            <li class="page-item">
+                <a class="page-link" href="{{ url_for('produits', page=page-1, categorie=categorie, recherche=recherche, tri=tri) }}">Précédent</a>
+            </li>
             {% endif %}
-            
+
             {% for p in range(1, total_pages + 1) %}
-            <li class="page-item {% if p == page %}active{% endif %}"><a class="page-link" href="{{ url_for('produits', page=p) }}">{{ p }}</a></li>
+            <li class="page-item {% if p == page %}active{% endif %}">
+                <a class="page-link" href="{{ url_for('produits', page=p, categorie=categorie, recherche=recherche, tri=tri) }}">{{ p }}</a>
+            </li>
             {% endfor %}
-            
+
             {% if page < total_pages %}
-            <li class="page-item"><a class="page-link" href="{{ url_for('produits', page=page+1) }}">Suivant</a></li>
+            <li class="page-item">
+                <a class="page-link" href="{{ url_for('produits', page=page+1, categorie=categorie, recherche=recherche, tri=tri) }}">Suivant</a>
+            </li>
             {% endif %}
         </ul>
+
+        <div class="d-flex justify-content-between align-items-center mt-2">
+            <small>Page {{ page }} sur {{ total_pages }}</small>
+            <form method="get" class="d-flex gap-2 align-items-center">
+                <input type="hidden" name="categorie" value="{{ categorie }}">
+                <input type="hidden" name="recherche" value="{{ recherche }}">
+                <input type="hidden" name="tri" value="{{ tri }}">
+                <input type="number" name="page" min="1" max="{{ total_pages }}" class="form-control w-auto" style="width: 80px;" placeholder="Page...">
+                <button class="btn btn-sm btn-outline-secondary">Aller</button>
+            </form>
+        </div>
     </nav>
 </div>
+
+<!-- 🎨 Bonus CSS -->
+<style>
+  .product-card:hover {
+    transform: scale(1.01);
+    transition: transform 0.2s ease-in-out;
+  }
+</style>
 {% endblock %}
