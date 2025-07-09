@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Optimisation des Stocks</h2>
+    <div class="row">
+        {% for produit_id, suggestion in suggestions.items()%}
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title blink text-danger">{{ suggestion.nom }}</h5>
+                    <p class="card-text">Réapprovisionner {{ suggestion.quantite }} unités</p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+@keyframes blink {
+    0% { opacity: 1; }
+    50% { opacity: 0; }
+    100% { opacity: 1; }
+}
+.blink {
+    animation: blink 1s infinite;
+}
+</style>
+{% endblock %}
