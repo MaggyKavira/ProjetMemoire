@@ -73,7 +73,7 @@ Projet_Butembo/
 ├── requirements.txt      # Dépendances Python
 └── README.md             # Documentation
 </details><details> <summary><strong>⚙️ Installation et configuration</strong></summary>
-Prérequis
+Prerequis
 Python 3.8+
 
 MySQL
@@ -134,16 +134,3 @@ Pagination intelligente : Navigation fluide dans les listes
 
 Sécurité : Validation des formulaires côté serveur
 
-Responsive Design : Adapté aux mobiles et tablettes
-
-</details><details> <summary><strong>📚 Bibliographie</strong></summary>
-Ce projet s'appuie sur les travaux de :
-
-Hug (2020) pour la librairie Surprise
-
-Koren, Bell & Volinsky (2023) pour SVD
-
-Grinberg (2022) pour Flask
-
-</details><details> <summary><strong>📄 Licence</strong></summary>
-Ce projet est mis à disposition sous licence MIT pour des fins éducatives et de recherche.
