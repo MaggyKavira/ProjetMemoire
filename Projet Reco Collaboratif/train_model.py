@@ -6,6 +6,7 @@ from database import db, init_db
 
 # Initialiser l'application Flask
 app = Flask(__name__)
+app.secret_key = 'votre_cle_secrete'
 init_db(app)
 
 # Définir un contexte d'application Flask
@@ -52,7 +53,7 @@ with app.app_context():
 
         # Sauvegarde du modèle
         import joblib
-        joblib.dump(algo, 'model/recommandation_model.joblib')
+        #joblib.dump(algo, 'model/recommandation_model.joblib')
         print("Modèle sauvegardé avec succès")
 
     # Fonction pour visualiser les erreurs

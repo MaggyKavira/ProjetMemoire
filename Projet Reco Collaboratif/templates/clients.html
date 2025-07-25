@@ -16,9 +16,22 @@
         </div>
         <button type="submit" class="btn btn-primary mt-3">Ajouter</button>
     </form>
+
+    <div class="mb-3 row">
+        <div class="col">
+          <div class="alert alert-info bg-gradient shadow-sm text-dark">
+            <strong>{{ total_clients }}</strong> clients –
+            <strong>
+               {{ clients|selectattr('transactions')|map(attribute='transactions')|map('length')|sum }}
+            </strong>
+            transactions sur tous les clients
+          </div>
+        </div>
+    </div>
+    
     
     <div class="table-responsive">
-        <table class="table table-striped">
+        <!--<table class="table table-striped">
             <thead class="table-dark">
                 <tr>
                     <th>Nom</th>
@@ -32,10 +45,81 @@
                     <td>{{ client.nom }}</td>
                     <td>{{ client.email }}</td>
                     <td>{{ client.preferences }}</td>
+
+                    <td>
+                        <a href="{{ url_for('modifier_client', client_id=client.id) }}" 
+                           class="btn btn-sm btn-outline-primary">✏️ Modifier</a>
+                        <form action="{{ url_for('supprimer_client', client_id=client.id) }}"
+                              method="post" style="display:inline"
+                              onsubmit="return confirm('Confirmer la suppression du client ?')">
+                            <button class="btn btn-sm btn-outline-danger">🗑️ Supprimer</button>
+                        </form>
+                    </td>
+                    <td>
+                        {{ client.transactions|length }}
+                    </td>
+
+                    <td>
+                        {% if client.transactions|length == 0 %}
+                            <form action="{{ url_for('supprimer_client', client_id=client.id) }}" method="post" style="display:inline;">
+                                <button class="btn btn-sm btn-outline-danger">🗑️ Supprimer</button>
+                            </form>
+                        {% else %}
+                            <span class="text-muted">Suppression impossible</span>
+                        {% endif %}
+                    </td>
+                    
+                      
+                </tr>
+
+
+
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>-->
+
+        <table class="table table-striped align-middle shadow">
+            <thead class="table-dark">
+                <tr>
+                    <th>Nom</th>
+                    <th>Email</th>
+                    <th>Préférences</th>
+                    <th>Transactions</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for client in clients %}
+                <tr>
+                    <td>{{ client.nom }}</td>
+                    <td>{{ client.email }}</td>
+                    <td>{{ client.preferences }}</td>
+                    <td>
+                        <span class="badge {% if client.transactions|length > 0 %}bg-info text-dark{% else %}bg-secondary{% endif %}">
+                          {{ client.transactions|length }} 
+                        </span>
+                    </td>
+                    <td>
+                        <a href="{{ url_for('modifier_client', client_id=client.id) }}" class="btn btn-outline-primary btn-sm">
+                            ✏️ Modifier
+                        </a>
+                        {% if client.transactions|length == 0 %}
+                        <form action="{{ url_for('supprimer_client', client_id=client.id) }}" method="post" style="display: inline" onsubmit="return confirm('Confirmer la suppression de ce client ?');">
+                            <button class="btn btn-outline-danger btn-sm">🗑️ Supprimer</button>
+                        </form>
+                        {% else %}
+                            <button class="btn btn-sm btn-outline-secondary" disabled title="Impossible: Ce client a des transactions">🛑</button>
+                        {% endif %}
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
+        
+
+
+
     </div>
     
     <nav aria-label="Pagination">
@@ -55,3 +139,15 @@
     </nav>
 </div>
 {% endblock %}
+
+
+<style>
+    .table td, .table th {
+      vertical-align: middle;
+    }
+    .btn[disabled] {
+      opacity: 0.55;
+      cursor: not-allowed !important;
+    }
+    </style>
+    

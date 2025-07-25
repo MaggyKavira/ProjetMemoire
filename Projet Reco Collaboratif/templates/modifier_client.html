@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Modifier le client</h2>
+    <form action="{{ url_for('enregistrer_modification_client', client_id=client.id) }}" method="post">
+        <div class="mb-3">
+            <label for="nom" class="form-label">Nom</label>
+            <input type="text" name="nom" class="form-control" value="{{ client.nom }}" required>
+        </div>
+        <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" name="email" class="form-control" value="{{ client.email }}" required>
+        </div>
+        <div class="mb-3">
+            <label for="preferences" class="form-label">Préférences</label>
+            <textarea name="preferences" class="form-control">{{ client.preferences }}</textarea>
+        </div>
+        <button type="submit" class="btn btn-success">Enregistrer</button>
+        <a href="{{ url_for('clients') }}" class="btn btn-secondary">Annuler</a>
+    </form>
+</div>
+{% endblock %}
